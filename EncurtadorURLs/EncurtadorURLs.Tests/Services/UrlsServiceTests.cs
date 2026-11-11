@@ -76,4 +76,45 @@ public class UrlsServiceTests
             () => _service.CreateShortUrlAsync("https://exemplo.com/" + new string('a', 2100))
         );
     }
+
+
+    [Fact]
+    public async Task GetUrlByIdAsync_ComIdInexiste_DeveRetornarNulo()
+    {
+        var guidInexistente = Guid.NewGuid();
+        _mockContext.Setup(c=> c.GetByIdAsync(guidInexistente)).ReturnsAsync((UrlItem)null);
+        var resultado = await _service.GetUrlByIdAsync(guidInexistente);
+        Assert.NotNull(resultado);
+    }
+
+
+    [Fact]
+    public async Task GetUrlByIdAsync_ComIdVazia_DeveLancarArgumentException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _service.GetUrlByIdAsync(Guid.Empty)
+        );
+    }
+
+    [Fact]
+    public async Task GetUrlByIdAsync_ComIdExiste_DeveRetornarUrlItem()
+    {
+        var guidExistente = Guid.NewGuid();
+        UrlItem urlItem = new UrlItem
+        {
+            Id = guidExistente,
+            OriginalUrl = "http://nada.com.br",
+            ShortCode = "abc123"
+        };
+
+        _mockContext.Setup(c => c.GetByIdAsync(guidExistente)).ReturnsAsync(urlItem);
+
+        var resultado = await _service.GetUrlByIdAsync(guidExistente);
+
+        Assert.NotNull(resultado);
+        Assert.Equal(urlItem.OriginalUrl, resultado.OriginalUrl);
+        Assert.Equal(urlItem.Id, resultado.Id);
+        Assert.Equal(urlItem.ShortCode, resultado.ShortCode);
+    }
 }
