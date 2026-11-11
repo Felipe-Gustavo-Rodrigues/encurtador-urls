@@ -84,7 +84,7 @@ public class UrlsServiceTests
         var guidInexistente = Guid.NewGuid();
         _mockContext.Setup(c=> c.GetByIdAsync(guidInexistente)).ReturnsAsync((UrlItem)null);
         var resultado = await _service.GetUrlByIdAsync(guidInexistente);
-        Assert.NotNull(resultado);
+        Assert.Null(resultado);
     }
 
 
